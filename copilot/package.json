@@ -1,0 +1,17 @@
+{
+  "name": "generate-tech-stack-copilot",
+  "version": "1.1.0",
+  "description": "GitHub Copilot Extension — generate a visual tech stack for any project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev":   "node --watch index.js"
+  },
+  "dependencies": {
+    "express":       "^4.18.0",
+    "@octokit/core": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
