@@ -1,6 +1,28 @@
 ---
 name: generate-tech-stack
-description: "Scans any project and generates a visual tech stack HTML page. Detects languages, frameworks, databases, AI SDKs, testing tools, observability, security, and infrastructure from dependency files (requirements.txt, package.json, go.mod, Cargo.toml, pyproject.toml, Dockerfile, docker-compose.yml, .github/workflows). Outputs TECH_STACK.html with: dark-mode design, stat row (total tools / categories / AI backends / data stores), layered architecture diagram, horizontal bar chart summary, and colour-coded tool cards with badges. Trigger: /generate-tech-stack"
+description: >
+  FIRE this skill when the user's intent is to discover, list, visualize, document, or summarize
+  the technologies used in a software project. This includes all of the following triggers:
+
+  EXPLICIT COMMANDS: /generate-tech-stack; "generate tech stack"; "create tech stack";
+  "show tech stack"; "build tech stack"; "make tech stack page"; "tech stack report".
+
+  DISCOVERY / INVENTORY INTENT: user wants to know what libraries, packages, dependencies,
+  frameworks, tools, or services a project uses — phrased as: "what libraries does this use",
+  "what packages are installed", "what dependencies does this project have", "list all tools",
+  "what frameworks are in use", "show me the dependencies", "what's in requirements.txt",
+  "scan my project", "audit the stack", "inventory the project", "what's this project built with",
+  "what tech does this use", "show all packages", "detect the stack".
+
+  VISUALIZATION / DOCUMENTATION INTENT: user wants an HTML page, visual report, or summary
+  document of the project's technology choices — phrased as: "generate a visual tech stack",
+  "create a tech stack page", "document the stack", "tech stack diagram", "stack overview",
+  "write a tech stack report", "produce a stack summary", "show the project stack visually",
+  "generate TECH_STACK.html", "create stack docs".
+
+  DO NOT FIRE for: architecture diagrams, service topology maps, request/data flow diagrams,
+  component interaction diagrams, or capacity/throughput analysis — those route to workflow-generator.
+  DO NOT FIRE for: code review, dependency vulnerability scanning, or upgrading packages.
 ---
 
 # generate-tech-stack
