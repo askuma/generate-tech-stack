@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.askuma/generate-tech-stack",
   "title": "Generate Tech Stack",
-  "description": "Generate a visual technology-stack inventory (TECH_STACK.html) from any codebase — languages, frameworks, databases, AI SDKs, testing, and infra tools.",
+  "description": "Visual tech-stack inventory of any codebase: languages, frameworks, databases, AI SDKs, infra.",
   "repository": {
     "url": "https://github.com/askuma/generate-tech-stack",
     "source": "github"
