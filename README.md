@@ -4,6 +4,11 @@ Scan any project and generate a visual `TECH_STACK.html` page — dark-mode, aut
 
 Works as a **Claude Code skill**, **MCP server**, or **GitHub Copilot Extension**.
 
+**[Live demo →](https://askuma.github.io/generate-tech-stack/)** — generated from
+[fastapi/full-stack-fastapi-template](https://github.com/fastapi/full-stack-fastapi-template), unmodified.
+
+![TECH_STACK.html generated for full-stack-fastapi-template](docs/preview.png)
+
 ---
 
 ## What it produces
