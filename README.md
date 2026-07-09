@@ -1,5 +1,7 @@
 # generate-tech-stack
 
+<!-- mcp-name: io.github.askuma/generate-tech-stack -->
+
 Scan any project and generate a visual `TECH_STACK.html` page — dark-mode, auto-adapting, zero config.
 
 Works as a **Claude Code skill**, **MCP server**, or **GitHub Copilot Extension**.
@@ -7,7 +9,7 @@ Works as a **Claude Code skill**, **MCP server**, or **GitHub Copilot Extension*
 **[Live demo →](https://askuma.github.io/generate-tech-stack/)** — generated from
 [fastapi/full-stack-fastapi-template](https://github.com/fastapi/full-stack-fastapi-template), unmodified.
 
-![TECH_STACK.html generated for full-stack-fastapi-template](docs/preview.png)
+![TECH_STACK.html generated for full-stack-fastapi-template](https://raw.githubusercontent.com/askuma/generate-tech-stack/main/docs/preview.png)
 
 ---
 
@@ -47,6 +49,25 @@ Every generated page contains:
 ---
 
 ## Usage
+
+### pip (CLI + MCP server)
+
+```bash
+pip install generate-tech-stack-mcp
+
+generate-tech-stack . TECH_STACK.html    # CLI: scan and write the report
+generate-tech-stack-mcp                   # stdio MCP server
+```
+
+With pip installed, any MCP host config reduces to:
+
+```json
+{
+  "mcpServers": {
+    "generate-tech-stack": { "command": "generate-tech-stack-mcp" }
+  }
+}
+```
 
 ### Claude Code
 
