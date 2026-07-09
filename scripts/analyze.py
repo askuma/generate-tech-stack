@@ -433,7 +433,9 @@ def scan_python(root: Path) -> dict:
 
     pp = root / "pyproject.toml"
     if pp.exists():
-        for pkg in re.findall(r'["\']([\w\-]+)["\']', pp.read_text()):
+        # Capture the package name at the start of each quoted string so pinned
+        # entries like "spacy>=3.0.0" or "guardrails-ai[extra]>=0.5" also match.
+        for pkg in re.findall(r'["\']([A-Za-z0-9][A-Za-z0-9._-]*)', pp.read_text()):
             pkg = pkg.lower()
             if pkg in PYTHON_MAP:
                 cat, desc = PYTHON_MAP[pkg]
