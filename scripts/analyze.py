@@ -361,6 +361,30 @@ FIND_SPEC_MAP = {
 
 # ── Scanners ──────────────────────────────────────────────────────────────────
 
+# Directories that contain third-party or generated code, never the project's own
+# stack. Scanning them would report every installed dependency's dependencies
+# (e.g. a local venv or vendored site-packages would add dozens of false tools).
+EXCLUDED_DIRS = frozenset({
+    ".git", ".hg", ".svn",
+    "node_modules", "bower_components",
+    "site-packages", "dist-packages",
+    "venv", ".venv", "env", "virtualenv",
+    "__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".tox", ".nox",
+    "dist", "build", "target", ".next", ".nuxt", ".output",
+    "vendor", "third_party", ".terraform",
+    "htmlcov", "coverage", ".cache",
+})
+
+
+def _iter_files(root: Path, pattern: str):
+    """rglob that skips vendored/venv/build directories."""
+    for p in root.rglob(pattern):
+        parents = p.relative_to(root).parts[:-1]
+        if any(d in EXCLUDED_DIRS or d.endswith(".egg-info") for d in parents):
+            continue
+        yield p
+
+
 def _normalize(name: str) -> str:
     return name.lower().replace("-", "").replace("_", "").replace(" ", "")
 
@@ -421,7 +445,9 @@ def scan_python(root: Path) -> dict:
 def scan_node(root: Path) -> dict:
     tools: dict = {}
     # Scan root package.json + one level of subdirectories (monorepos / frontend dirs)
-    pj_candidates = [root / "package.json"] + list(root.glob("*/package.json"))
+    pj_candidates = [root / "package.json"] + [
+        p for p in root.glob("*/package.json") if p.parent.name not in EXCLUDED_DIRS
+    ]
     for pj in pj_candidates:
         if not pj.exists():
             continue
@@ -454,7 +480,7 @@ def scan_python_source(root: Path) -> dict:
     has_ga_guard   = False
     has_pres_anon  = False
 
-    for py_file in root.rglob("*.py"):
+    for py_file in _iter_files(root, "*.py"):
         try:
             content = py_file.read_text(errors="ignore")
         except Exception:
@@ -562,7 +588,7 @@ def detect_infra(root: Path) -> list:
         if (root / name).exists():
             infra.append({"name": "Docker Compose", "desc": "Multi-service stack", "badge": "deploy"})
             break
-    yamls = [f.name for f in root.glob("**/*.yaml")] + [f.name for f in root.glob("**/*.yml")]
+    yamls = [f.name for f in _iter_files(root, "*.yaml")] + [f.name for f in _iter_files(root, "*.yml")]
     if any("k8s" in y or "kubernetes" in y or "deployment" in y for y in yamls):
         infra.append({"name": "Kubernetes", "desc": "Container orchestration", "badge": "prod"})
     if (root / ".github" / "workflows").exists():
