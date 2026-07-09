@@ -400,8 +400,11 @@ def _add_tool(tools: dict, cat: str, name: str, desc: str, badge: str) -> None:
 
 def scan_python(root: Path) -> dict:
     tools: dict = {}
-    for fname in ["requirements.txt", "requirements-dev.txt", "requirements/base.txt"]:
-        fpath = root / fname
+    # Root manifests + one level of subdirectories (monorepos: backend/, api/, …)
+    req_candidates = [
+        root / f for f in ["requirements.txt", "requirements-dev.txt", "requirements/base.txt"]
+    ] + [p for p in root.glob("*/requirements.txt") if p.parent.name not in EXCLUDED_DIRS]
+    for fpath in req_candidates:
         if not fpath.exists():
             continue
         for line in fpath.read_text().splitlines():
@@ -431,8 +434,12 @@ def scan_python(root: Path) -> dict:
                 display = DISPLAY_NAMES.get(pkg, pkg)
                 _add_tool(tools, cat, display, desc, "pip")
 
-    pp = root / "pyproject.toml"
-    if pp.exists():
+    pp_candidates = [root / "pyproject.toml"] + [
+        p for p in root.glob("*/pyproject.toml") if p.parent.name not in EXCLUDED_DIRS
+    ]
+    for pp in pp_candidates:
+        if not pp.exists():
+            continue
         # Capture the package name at the start of each quoted string so pinned
         # entries like "spacy>=3.0.0" or "guardrails-ai[extra]>=0.5" also match.
         for pkg in re.findall(r'["\']([A-Za-z0-9][A-Za-z0-9._-]*)', pp.read_text()):
