@@ -9,7 +9,9 @@ Works as a **Claude Code skill**, **MCP server**, or **GitHub Copilot Extension*
 **[Live demo →](https://askuma.github.io/generate-tech-stack/)** — generated from
 [fastapi/full-stack-fastapi-template](https://github.com/fastapi/full-stack-fastapi-template), unmodified.
 
-![TECH_STACK.html generated for full-stack-fastapi-template](https://raw.githubusercontent.com/askuma/generate-tech-stack/main/docs/preview.png)
+![Running generate-tech-stack against fastapi/full-stack-fastapi-template, from pip install to the generated page](https://raw.githubusercontent.com/askuma/generate-tech-stack/main/docs/demo.gif)
+
+*(real CLI output, unscripted — [static screenshot](https://raw.githubusercontent.com/askuma/generate-tech-stack/main/docs/preview.png) if you'd rather not autoplay)*
 
 ---
 
