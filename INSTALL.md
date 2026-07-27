@@ -210,3 +210,5 @@ Every generated `TECH_STACK.html` includes:
 2. **Architecture diagram** — layered flow adapted to what's detected
 3. **Bar chart** — horizontal bars per category, colour-matched
 4. **Tool cards** — one card per category, each tool with dot · name · desc · badge
+5. **Guided tour** — spotlight walkthrough shown automatically on first open, replayable via the
+   `?` button in the top-right corner
