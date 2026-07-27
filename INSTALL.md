@@ -212,3 +212,5 @@ Every generated `TECH_STACK.html` includes:
 4. **Tool cards** — one card per category, each tool with dot · name · desc · badge
 5. **Guided tour** — spotlight walkthrough shown automatically on first open, replayable via the
    `?` button in the top-right corner
+6. **Theme toggle** — sun/moon button beside the tour button switches between dark (default) and
+   light mode

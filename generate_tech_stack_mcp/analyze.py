@@ -777,20 +777,23 @@ def build_arch_html(tools: dict) -> str:
 # ── Guided tour ────────────────────────────────────────────────────────────────
 
 TOUR_CSS = (
-    "#tour-restart{"
-    "position:fixed;top:20px;right:20px;z-index:40;"
+    ".corner-btn{"
+    "position:fixed;top:20px;z-index:40;"
     "width:34px;height:34px;border-radius:50%;"
     "background:var(--bg3);border:1px solid var(--border);color:var(--muted);"
     "font-family:var(--sans);font-weight:700;font-size:.85rem;cursor:pointer;"
     "display:flex;align-items:center;justify-content:center;"
     "transition:border-color .2s,color .2s;}"
-    "#tour-restart:hover{border-color:var(--green);color:var(--green)}"
+    "#theme-toggle.corner-btn{right:20px}"
+    "#tour-restart.corner-btn{right:64px}"
+    ".corner-btn:hover{border-color:var(--green);color:var(--green)}"
     ".tour-overlay{position:fixed;inset:0;z-index:50;background:transparent}"
     ".tour-spot{"
     "position:absolute;z-index:51;border-radius:14px;"
     "box-shadow:0 0 0 9999px rgba(0,0,0,.65);"
     "pointer-events:none;transition:top .35s ease,left .35s ease,"
     "width .35s ease,height .35s ease;}"
+    ":root[data-theme=\"light\"] .tour-spot{box-shadow:0 0 0 9999px rgba(15,23,42,.45)}"
     ".tour-card{"
     "position:absolute;z-index:52;width:320px;max-width:calc(100vw - 40px);"
     "background:var(--bg3);border:1px solid var(--border2);border-radius:14px;"
@@ -800,11 +803,13 @@ TOUR_CSS = (
     "text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}"
     ".tour-title{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:8px}"
     ".tour-body{font-size:.8rem;color:#94a3b8;line-height:1.55;margin-bottom:16px}"
+    ":root[data-theme=\"light\"] .tour-body{color:#475569}"
     ".tour-controls{display:flex;align-items:center;justify-content:space-between;gap:10px}"
     ".tour-skip{"
     "font-size:.72rem;color:var(--muted);background:none;border:none;"
     "cursor:pointer;text-decoration:underline;padding:0;}"
     ".tour-skip:hover{color:#94a3b8}"
+    ":root[data-theme=\"light\"] .tour-skip:hover{color:#334155}"
     ".tour-btns{display:flex;gap:8px}"
     ".tour-btn{"
     "font-family:var(--sans);font-size:.75rem;font-weight:600;"
@@ -817,7 +822,22 @@ TOUR_CSS = (
     "position:absolute;top:10px;right:12px;background:none;border:none;"
     "color:var(--muted);font-size:1rem;cursor:pointer;line-height:1;padding:4px;}"
     ".tour-close:hover{color:#94a3b8}"
+    ":root[data-theme=\"light\"] .tour-close:hover{color:#334155}"
 )
+
+THEME_JS = """
+(function(){
+  var toggle = document.getElementById('theme-toggle');
+  var root = document.documentElement;
+  if (toggle) {
+    toggle.addEventListener('click', function(){
+      var goingLight = root.getAttribute('data-theme') !== 'light';
+      root.setAttribute('data-theme', goingLight ? 'light' : 'dark');
+      toggle.textContent = goingLight ? '\\ud83c\\udf19' : '\\u2600\\ufe0f';
+    });
+  }
+})();
+"""
 
 TOUR_JS = """
 (function(){
@@ -827,7 +847,7 @@ TOUR_JS = """
     {sel:'#section-numbers', title:'By the numbers', body:'Category breakdown at a glance, tallest bar first.'},
     {sel:'#section-stack', title:'Full stack', body:'Every detected tool, grouped by category, with a badge showing how it was found (pip install, npm dependency, detected in source, etc.).'},
     {sel:'.legend-wrap', title:'Badge reference', body:'What each badge on a tool card means.'},
-    {sel:'#tour-restart', title:'One more thing', body:'That\\'s the tour — click this button anytime to see it again.'}
+    {sel:'#theme-toggle', title:'One more thing', body:'Toggle light and dark mode anytime. That\\'s the tour — click the ? button to see it again.'}
   ];
   var DISMISS_KEY = 'gts_tour_v1_dismissed';
   var overlay, spot, card, active = [], cur = -1;
@@ -1051,9 +1071,21 @@ def render_html(tools: dict, project_name: str) -> str:
         "--mono:'JetBrains Mono',monospace;"
         "--sans:'IBM Plex Sans',system-ui,sans-serif;"
         "}"
+        ":root[data-theme=\"light\"]{"
+        "--bg:#f8fafc;--bg2:#ffffff;--bg3:#ffffff;--bg4:#f1f5f9;"
+        "--border:#e2e8f0;--border2:#cbd5e1;"
+        "--text:#0f172a;--muted:#64748b;--dim:#94a3b8;"
+        "}"
+        ":root[data-theme=\"light\"] body{background-image:"
+        "radial-gradient(circle,#cbd5e1 1.4px,transparent 1.4px);background-size:24px 24px}"
+        ":root[data-theme=\"light\"] h1{color:#0f172a}"
+        ":root[data-theme=\"light\"] .stat-num{color:#0f172a}"
+        ":root[data-theme=\"light\"] .tool-name{color:#0f172a}"
+        ":root[data-theme=\"light\"] .bar-outer{background:#e2e8f0}"
+        ":root[data-theme=\"light\"] .tool:hover{background:rgba(15,23,42,.04)}"
         "html{scroll-behavior:smooth}"
         "body{font-family:var(--sans);background:var(--bg);color:var(--text);"
-        "line-height:1.6;-webkit-font-smoothing:antialiased}"
+        "line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}"
         ".header{"
         "padding:80px 24px 56px;text-align:center;position:relative;overflow:hidden;"
         "border-bottom:1px solid var(--border);}"
@@ -1237,8 +1269,10 @@ def render_html(tools: dict, project_name: str) -> str:
   {project_name} &nbsp;&middot;&nbsp; {total} tools in {cat_count} categories &nbsp;&middot;&nbsp; {today} &nbsp;&middot;&nbsp; generate-tech-stack
 </footer>
 
-<button id="tour-restart" title="Take the guided tour">?</button>
+<button id="theme-toggle" class="corner-btn" aria-label="Toggle light/dark theme" title="Toggle theme">&#9728;&#65039;</button>
+<button id="tour-restart" class="corner-btn" title="Take the guided tour">?</button>
 
+<script>{THEME_JS}</script>
 <script>{TOUR_JS}</script>
 </body>
 </html>"""

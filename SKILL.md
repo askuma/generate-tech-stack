@@ -66,8 +66,10 @@ The generated HTML must include all of the following sections (the script produc
 6. **Guided tour** — a spotlight walkthrough that dims the page and steps through each section
    in turn (Back/Next/Skip), shown automatically the first time a generated report is opened.
    Replayable anytime via the `?` button in the top-right corner.
+7. **Theme toggle** — sun/moon button beside the tour button switches between dark (default)
+   and light mode.
 
-## Design tokens (dark mode)
+## Design tokens (default dark theme)
 
 | CSS variable | Value | Usage |
 |---|---|---|
