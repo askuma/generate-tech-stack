@@ -20,7 +20,7 @@ CATEGORY_META = {
     "language":      {"icon": "🐍", "label": "Language & Runtime",      "color": "green"},
     "web":           {"icon": "🌐", "label": "Web / API Framework",     "color": "purple"},
     "database":      {"icon": "🗄️",  "label": "Database / Storage",     "color": "green"},
-    "ai_sdk":        {"icon": "🧠", "label": "AI Guardrail SDKs",       "color": "blue"},
+    "ai_sdk":        {"icon": "🧠", "label": "AI SDKs",                  "color": "blue"},
     "nlp":           {"icon": "📝", "label": "NLP / ML",                "color": "teal"},
     "testing":       {"icon": "🧪", "label": "Testing",                 "color": "yellow"},
     "observability": {"icon": "📊", "label": "Observability",           "color": "teal"},
@@ -774,6 +774,204 @@ def build_arch_html(tools: dict) -> str:
     return "\n    ".join(rows)
 
 
+# ── Guided tour ────────────────────────────────────────────────────────────────
+
+TOUR_CSS = (
+    ".corner-btn{"
+    "position:fixed;top:20px;z-index:40;"
+    "width:34px;height:34px;border-radius:50%;"
+    "background:var(--bg3);border:1px solid var(--border);color:var(--muted);"
+    "font-family:var(--sans);font-weight:700;font-size:.85rem;cursor:pointer;"
+    "display:flex;align-items:center;justify-content:center;"
+    "transition:border-color .2s,color .2s;}"
+    "#theme-toggle.corner-btn{right:20px}"
+    "#tour-restart.corner-btn{right:64px}"
+    ".corner-btn:hover{border-color:var(--green);color:var(--green)}"
+    ".tour-overlay{position:fixed;inset:0;z-index:50;background:transparent}"
+    ".tour-spot{"
+    "position:absolute;z-index:51;border-radius:14px;"
+    "box-shadow:0 0 0 9999px rgba(0,0,0,.65);"
+    "pointer-events:none;transition:top .35s ease,left .35s ease,"
+    "width .35s ease,height .35s ease;}"
+    ":root[data-theme=\"light\"] .tour-spot{box-shadow:0 0 0 9999px rgba(15,23,42,.45)}"
+    ".tour-card{"
+    "position:absolute;z-index:52;width:320px;max-width:calc(100vw - 40px);"
+    "background:var(--bg3);border:1px solid var(--border2);border-radius:14px;"
+    "padding:20px 22px;box-shadow:0 12px 40px rgba(0,0,0,.5);"
+    "font-family:var(--sans);transition:top .35s ease,left .35s ease;}"
+    ".tour-step{font-family:var(--mono);font-size:.65rem;color:var(--muted);"
+    "text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}"
+    ".tour-title{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:8px}"
+    ".tour-body{font-size:.8rem;color:#94a3b8;line-height:1.55;margin-bottom:16px}"
+    ":root[data-theme=\"light\"] .tour-body{color:#475569}"
+    ".tour-controls{display:flex;align-items:center;justify-content:space-between;gap:10px}"
+    ".tour-skip{"
+    "font-size:.72rem;color:var(--muted);background:none;border:none;"
+    "cursor:pointer;text-decoration:underline;padding:0;}"
+    ".tour-skip:hover{color:#94a3b8}"
+    ":root[data-theme=\"light\"] .tour-skip:hover{color:#334155}"
+    ".tour-btns{display:flex;gap:8px}"
+    ".tour-btn{"
+    "font-family:var(--sans);font-size:.75rem;font-weight:600;"
+    "padding:7px 14px;border-radius:8px;cursor:pointer;"
+    "border:1px solid var(--border2);background:var(--bg4);color:var(--text);"
+    "transition:border-color .2s;}"
+    ".tour-btn:hover{border-color:var(--green)}"
+    ".tour-btn.primary{background:var(--green);border-color:var(--green);color:#052e12}"
+    ".tour-close{"
+    "position:absolute;top:10px;right:12px;background:none;border:none;"
+    "color:var(--muted);font-size:1rem;cursor:pointer;line-height:1;padding:4px;}"
+    ".tour-close:hover{color:#94a3b8}"
+    ":root[data-theme=\"light\"] .tour-close:hover{color:#334155}"
+)
+
+THEME_JS = """
+(function(){
+  var toggle = document.getElementById('theme-toggle');
+  var root = document.documentElement;
+  if (toggle) {
+    toggle.addEventListener('click', function(){
+      var goingLight = root.getAttribute('data-theme') !== 'light';
+      root.setAttribute('data-theme', goingLight ? 'light' : 'dark');
+      toggle.textContent = goingLight ? '\\ud83c\\udf19' : '\\u2600\\ufe0f';
+    });
+  }
+})();
+"""
+
+TOUR_JS = """
+(function(){
+  var STEPS = [
+    {sel:'.stats-wrap', title:'Auto-detected counts', body:'Total tools, categories, and (when present) AI SDKs and data stores.'},
+    {sel:'#section-architecture', title:'System architecture', body:'How the pieces fit together — consumer → API/middleware → AI/NLP → data & observability — built from what was actually detected, not a template.'},
+    {sel:'#section-numbers', title:'By the numbers', body:'Category breakdown at a glance, tallest bar first.'},
+    {sel:'#section-stack', title:'Full stack', body:'Every detected tool, grouped by category, with a badge showing how it was found (pip install, npm dependency, detected in source, etc.).'},
+    {sel:'.legend-wrap', title:'Badge reference', body:'What each badge on a tool card means.'},
+    {sel:'#theme-toggle', title:'One more thing', body:'Toggle light and dark mode anytime. That\\'s the tour — click the ? button to see it again.'}
+  ];
+  var DISMISS_KEY = 'gts_tour_v1_dismissed';
+  var overlay, spot, card, active = [], cur = -1;
+
+  function storageGet(){
+    try { return localStorage.getItem(DISMISS_KEY) === '1'; } catch (e) { return false; }
+  }
+  function storageSet(){
+    try { localStorage.setItem(DISMISS_KEY, '1'); } catch (e) {}
+  }
+
+  function resolveSteps(){
+    return STEPS.filter(function(s){
+      var el = document.querySelector(s.sel);
+      if (!el) return false;
+      var r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    });
+  }
+
+  function buildUI(){
+    overlay = document.createElement('div');
+    overlay.className = 'tour-overlay';
+    spot = document.createElement('div');
+    spot.className = 'tour-spot';
+    card = document.createElement('div');
+    card.className = 'tour-card';
+    card.innerHTML =
+      '<button class="tour-close" aria-label="Close">\\u00d7</button>' +
+      '<div class="tour-step"></div>' +
+      '<div class="tour-title"></div>' +
+      '<div class="tour-body"></div>' +
+      '<div class="tour-controls">' +
+        '<button class="tour-skip">Skip tour</button>' +
+        '<div class="tour-btns">' +
+          '<button class="tour-btn tour-back">Back</button>' +
+          '<button class="tour-btn primary tour-next">Next</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    document.body.appendChild(spot);
+    document.body.appendChild(card);
+
+    overlay.addEventListener('click', endTour);
+    card.querySelector('.tour-close').addEventListener('click', endTour);
+    card.querySelector('.tour-skip').addEventListener('click', endTour);
+    card.querySelector('.tour-back').addEventListener('click', function(){ go(cur - 1); });
+    card.querySelector('.tour-next').addEventListener('click', function(){
+      if (cur >= active.length - 1) { endTour(); } else { go(cur + 1); }
+    });
+    document.addEventListener('keydown', function(e){
+      if (overlay.style.display !== 'none' && e.key === 'Escape') endTour();
+    });
+    window.addEventListener('resize', function(){
+      if (cur >= 0 && cur < active.length) position(active[cur].el);
+    });
+  }
+
+  function position(el){
+    var r = el.getBoundingClientRect();
+    var pad = 10;
+    var top = r.top + window.scrollY - pad;
+    var left = r.left + window.scrollX - pad;
+    spot.style.top = top + 'px';
+    spot.style.left = left + 'px';
+    spot.style.width = (r.width + pad * 2) + 'px';
+    spot.style.height = (r.height + pad * 2) + 'px';
+
+    var cardTop = top + r.height + pad * 2 + 12;
+    var viewportBottom = window.scrollY + window.innerHeight;
+    if (cardTop + 200 > viewportBottom) {
+      cardTop = Math.max(window.scrollY + 12, top - 12 - 220);
+    }
+    var cardLeft = Math.min(
+      Math.max(left, window.scrollX + 20),
+      window.scrollX + window.innerWidth - 340
+    );
+    card.style.top = cardTop + 'px';
+    card.style.left = cardLeft + 'px';
+  }
+
+  function go(i){
+    if (i < 0 || i >= active.length) return;
+    cur = i;
+    var step = active[i];
+    step.el = document.querySelector(step.sel);
+    if (!step.el) { endTour(); return; }
+    step.el.scrollIntoView({block: 'center', behavior: 'smooth'});
+    card.querySelector('.tour-step').textContent = (i + 1) + ' / ' + active.length;
+    card.querySelector('.tour-title').textContent = step.title;
+    card.querySelector('.tour-body').textContent = step.body;
+    card.querySelector('.tour-back').style.visibility = i === 0 ? 'hidden' : 'visible';
+    card.querySelector('.tour-next').textContent = i === active.length - 1 ? 'Done' : 'Next';
+    setTimeout(function(){ position(step.el); }, 350);
+  }
+
+  function startTour(){
+    active = resolveSteps();
+    if (!active.length) return;
+    if (!overlay) buildUI();
+    overlay.style.display = 'block';
+    spot.style.display = 'block';
+    card.style.display = 'block';
+    go(0);
+  }
+
+  function endTour(){
+    storageSet();
+    if (overlay) overlay.style.display = 'none';
+    if (spot) spot.style.display = 'none';
+    if (card) card.style.display = 'none';
+    cur = -1;
+  }
+
+  var restartBtn = document.getElementById('tour-restart');
+  if (restartBtn) restartBtn.addEventListener('click', startTour);
+
+  if (!storageGet()) {
+    setTimeout(startTour, 700);
+  }
+})();
+"""
+
+
 # ── HTML renderer ─────────────────────────────────────────────────────────────
 
 def render_html(tools: dict, project_name: str) -> str:
@@ -851,7 +1049,7 @@ def render_html(tools: dict, project_name: str) -> str:
         stats_html += (
             '<div class="stat-card stat-accent">'
             f'<div class="stat-num">{ai_count}</div>'
-            '<div class="stat-lbl">AI Guardrails</div>'
+            '<div class="stat-lbl">AI Backends</div>'
             '</div>'
         )
     if db_count:
@@ -873,9 +1071,21 @@ def render_html(tools: dict, project_name: str) -> str:
         "--mono:'JetBrains Mono',monospace;"
         "--sans:'IBM Plex Sans',system-ui,sans-serif;"
         "}"
+        ":root[data-theme=\"light\"]{"
+        "--bg:#f8fafc;--bg2:#ffffff;--bg3:#ffffff;--bg4:#f1f5f9;"
+        "--border:#e2e8f0;--border2:#cbd5e1;"
+        "--text:#0f172a;--muted:#64748b;--dim:#94a3b8;"
+        "}"
+        ":root[data-theme=\"light\"] body{background-image:"
+        "radial-gradient(circle,#cbd5e1 1.4px,transparent 1.4px);background-size:24px 24px}"
+        ":root[data-theme=\"light\"] h1{color:#0f172a}"
+        ":root[data-theme=\"light\"] .stat-num{color:#0f172a}"
+        ":root[data-theme=\"light\"] .tool-name{color:#0f172a}"
+        ":root[data-theme=\"light\"] .bar-outer{background:#e2e8f0}"
+        ":root[data-theme=\"light\"] .tool:hover{background:rgba(15,23,42,.04)}"
         "html{scroll-behavior:smooth}"
         "body{font-family:var(--sans);background:var(--bg);color:var(--text);"
-        "line-height:1.6;-webkit-font-smoothing:antialiased}"
+        "line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}"
         ".header{"
         "padding:80px 24px 56px;text-align:center;position:relative;overflow:hidden;"
         "border-bottom:1px solid var(--border);}"
@@ -982,7 +1192,7 @@ def render_html(tools: dict, project_name: str) -> str:
         ".tool-desc{display:none}"
         ".cards-grid{grid-template-columns:1fr}"
         "h1{font-size:1.8rem}}"
-    )
+    ) + TOUR_CSS
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -1007,7 +1217,7 @@ def render_html(tools: dict, project_name: str) -> str:
   {stats_html}
 </div>
 
-<div class="section">
+<div class="section" id="section-architecture">
   <div class="sec-hdr">
     <span class="sec-title">System Architecture</span>
     <div class="sec-line"></div>
@@ -1018,7 +1228,7 @@ def render_html(tools: dict, project_name: str) -> str:
   </div>
 </div>
 
-<div class="section">
+<div class="section" id="section-numbers">
   <div class="sec-hdr">
     <span class="sec-title">By the Numbers</span>
     <div class="sec-line"></div>
@@ -1028,7 +1238,7 @@ def render_html(tools: dict, project_name: str) -> str:
   </div>
 </div>
 
-<div class="section">
+<div class="section" id="section-stack">
   <div class="sec-hdr">
     <span class="sec-title">Full Stack</span>
     <div class="sec-line"></div>
@@ -1059,6 +1269,11 @@ def render_html(tools: dict, project_name: str) -> str:
   {project_name} &nbsp;&middot;&nbsp; {total} tools in {cat_count} categories &nbsp;&middot;&nbsp; {today} &nbsp;&middot;&nbsp; generate-tech-stack
 </footer>
 
+<button id="theme-toggle" class="corner-btn" aria-label="Toggle light/dark theme" title="Toggle theme">&#9728;&#65039;</button>
+<button id="tour-restart" class="corner-btn" title="Take the guided tour">?</button>
+
+<script>{THEME_JS}</script>
+<script>{TOUR_JS}</script>
 </body>
 </html>"""
 

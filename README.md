@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.askuma/generate-tech-stack -->
 
-Scan any project and generate a visual `TECH_STACK.html` page — dark-mode, auto-adapting, zero config.
+Scan any project and generate a visual `TECH_STACK.html` page — light/dark theme, auto-adapting, zero config.
 
 Works as a **Claude Code skill**, **MCP server**, or **GitHub Copilot Extension**.
 
@@ -27,6 +27,8 @@ Every generated page contains:
 | **Tool cards** | One card per category; each tool shows a dot, name, description, and badge |
 | **Badge legend** | Explains `pip`, `dep`, `optional`, `core`, `deploy`, `ci`, etc. |
 | **Footer** | Project name · tool count · generation date |
+| **Guided tour** | Spotlight walkthrough of every section, shown automatically the first time a report is opened; replay anytime with the `?` button |
+| **Theme toggle** | Sun/moon button next to the tour button switches between dark and light mode |
 
 ---
 
@@ -164,7 +166,7 @@ python3 scripts/analyze.py . ~/Desktop/TECH_STACK.html
 | Language & Runtime | Green | Python, Go, Rust, TypeScript |
 | Web / API Framework | Purple | FastAPI, Express, Django, Next.js |
 | Database / Storage | Green | SQLAlchemy, Prisma, Redis, ChromaDB |
-| AI Guardrail SDKs | Blue | GuardrailsAI, NVIDIA NeMo, Presidio, Lakera |
+| AI SDKs | Blue | OpenAI, Anthropic, LangChain, GuardrailsAI, NVIDIA NeMo, Presidio |
 | NLP / ML | Teal | spaCy, Transformers, Sentence Transformers |
 | Observability | Teal | Prometheus, OpenTelemetry, Sentry, Loguru |
 | Testing | Yellow | pytest, Jest, Cypress, Playwright |
@@ -178,7 +180,7 @@ python3 scripts/analyze.py . ~/Desktop/TECH_STACK.html
 
 ## Design
 
-Dark-mode only. Fonts: **IBM Plex Sans** (body) + **JetBrains Mono** (code/badges), loaded from Google Fonts. No JavaScript — pure HTML + CSS. Self-contained single file, opens in any browser offline.
+Dark by default with a light-mode toggle (top-right corner, no persistence — resets to dark on reload). Fonts: **IBM Plex Sans** (body) + **JetBrains Mono** (code/badges), loaded from Google Fonts. Vanilla JS powers the guided tour and theme toggle only — everything else is plain HTML + CSS. Self-contained single file, opens in any browser offline.
 
 ---
 
