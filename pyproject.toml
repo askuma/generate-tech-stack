@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "generate-tech-stack-mcp"
-version = "0.2.1"
+version = "0.2.2"
 description = "Generate a visual technology-stack inventory (TECH_STACK.html) from any codebase — languages, frameworks, databases, AI SDKs, testing, and infra. CLI + MCP server, stdlib-only scanner."
 readme = "README.md"
 license = { text = "MIT" }
