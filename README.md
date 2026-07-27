@@ -166,7 +166,7 @@ python3 scripts/analyze.py . ~/Desktop/TECH_STACK.html
 | Language & Runtime | Green | Python, Go, Rust, TypeScript |
 | Web / API Framework | Purple | FastAPI, Express, Django, Next.js |
 | Database / Storage | Green | SQLAlchemy, Prisma, Redis, ChromaDB |
-| AI Guardrail SDKs | Blue | GuardrailsAI, NVIDIA NeMo, Presidio, Lakera |
+| AI SDKs | Blue | OpenAI, Anthropic, LangChain, GuardrailsAI, NVIDIA NeMo, Presidio |
 | NLP / ML | Teal | spaCy, Transformers, Sentence Transformers |
 | Observability | Teal | Prometheus, OpenTelemetry, Sentry, Loguru |
 | Testing | Yellow | pytest, Jest, Cypress, Playwright |

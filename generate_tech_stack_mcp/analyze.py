@@ -20,7 +20,7 @@ CATEGORY_META = {
     "language":      {"icon": "🐍", "label": "Language & Runtime",      "color": "green"},
     "web":           {"icon": "🌐", "label": "Web / API Framework",     "color": "purple"},
     "database":      {"icon": "🗄️",  "label": "Database / Storage",     "color": "green"},
-    "ai_sdk":        {"icon": "🧠", "label": "AI Guardrail SDKs",       "color": "blue"},
+    "ai_sdk":        {"icon": "🧠", "label": "AI SDKs",                  "color": "blue"},
     "nlp":           {"icon": "📝", "label": "NLP / ML",                "color": "teal"},
     "testing":       {"icon": "🧪", "label": "Testing",                 "color": "yellow"},
     "observability": {"icon": "📊", "label": "Observability",           "color": "teal"},
@@ -842,7 +842,7 @@ THEME_JS = """
 TOUR_JS = """
 (function(){
   var STEPS = [
-    {sel:'.stats-wrap', title:'Auto-detected counts', body:'Total tools, categories, and (when present) AI guardrail SDKs and data stores.'},
+    {sel:'.stats-wrap', title:'Auto-detected counts', body:'Total tools, categories, and (when present) AI SDKs and data stores.'},
     {sel:'#section-architecture', title:'System architecture', body:'How the pieces fit together — consumer → API/middleware → AI/NLP → data & observability — built from what was actually detected, not a template.'},
     {sel:'#section-numbers', title:'By the numbers', body:'Category breakdown at a glance, tallest bar first.'},
     {sel:'#section-stack', title:'Full stack', body:'Every detected tool, grouped by category, with a badge showing how it was found (pip install, npm dependency, detected in source, etc.).'},
@@ -1049,7 +1049,7 @@ def render_html(tools: dict, project_name: str) -> str:
         stats_html += (
             '<div class="stat-card stat-accent">'
             f'<div class="stat-num">{ai_count}</div>'
-            '<div class="stat-lbl">AI Guardrails</div>'
+            '<div class="stat-lbl">AI Backends</div>'
             '</div>'
         )
     if db_count:
